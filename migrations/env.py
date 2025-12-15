@@ -6,7 +6,11 @@ from alembic import context
 import asyncio
 from config import settings
 from app.SAmodels.database import Base
+from app.SAmodels.customer import Customer  
+from app.SAmodels.sale import Sale  
 from app.SAmodels.car import Car  
+from app.SAmodels.user import User  
+
 
 config = context.config  # type: ignore[attr-defined]
 

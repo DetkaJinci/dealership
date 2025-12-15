@@ -1,4 +1,3 @@
-
 from sqlalchemy import Column, Integer, String
 from app.SAmodels.database import Base 
 
@@ -14,4 +13,3 @@ class Car(Base):
     status = Column(String(20), nullable=False, index=True)  
     price = Column(Integer, nullable=False)
 
-    
