@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
@@ -93,22 +94,13 @@ class UserOutWithoutSensitive(UserOut):
         from_attributes = True
 
 
-class SaleFilter(BaseModel):
-    """Схема для фильтрации продаж (query parameters)"""
-    car_id: Optional[int] = Field(None, gt=0, description="ID автомобиля")
-    customer_id: Optional[int] = Field(None, gt=0, description="ID покупателя")
-    user_id: Optional[int] = Field(None, gt=0, description="ID сотрудника (продавца)")
-    sale_date_from: Optional[date] = Field(None, description="Дата продажи от")
-    sale_date_to: Optional[date] = Field(None, description="Дата продажи до")
-    payment_method: Optional[Literal["cash", "card", "credit", "installment"]] = Field(
-        None, description="Способ оплаты"
+class UserFilter(BaseModel):
+    """Схема для фильтрации пользователей (query parameters)"""
+    username: Optional[str] = Field(None, min_length=3, max_length=50, description="Логин пользователя")
+    birthday_from: Optional[date] = Field(None, description="Дата рождения от")
+    birthday_to: Optional[date] = Field(None, description="Дата рождения до")
+    email: Optional[EmailStr] = Field(None, description="Email пользователя")
+    role: Optional[Literal["admin", "manager", "seller", "viewer"]] = Field(
+        None, description="Роль пользователя в системе"
     )
-    status: Optional[Literal["pending", "completed", "cancelled", "refunded"]] = Field(
-        None, description="Статус продажи"
-    )
-    sale_price_min: Optional[Decimal] = Field(
-        None, gt=0, max_digits=12, decimal_places=2, description="Минимальная цена продажи"
-    )
-    sale_price_max: Optional[Decimal] = Field(
-        None, gt=0, max_digits=12, decimal_places=2, description="Максимальная цена продажи"
-    )
+

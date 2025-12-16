@@ -36,7 +36,7 @@ class CarOut(BaseModel):
     
     class Config:
         from_attributes = True
-
+        from_attributes = True
 
 
 class CustomerFilter(BaseModel):
@@ -48,4 +48,5 @@ class CustomerFilter(BaseModel):
     birthday_to: Optional[date] = Field(None, description="Дата рождения до")
     email: Optional[EmailStr] = Field(None, description="Почта покупателя")
     phone: Optional[str] = Field(None, min_length=11, max_length=12, description="Номер телефона")
-    passport: Optional[str] = Field(None, min_length=10, max_length=10, des
+    passport: Optional[str] = Field(None, min_length=10, max_length=10, description="Паспорт")
+

@@ -32,13 +32,4 @@ class CarOut(CarBase):
         "from_attributes": True             
     }    
 
-class CarFilter(BaseModel):
-    """Схема для фильтрации автомобилей (query parameters)"""
-    brand: Optional[str] = Field(None, min_length=1, max_length=50, description="Марка автомобиля")
-    model: Optional[str] = Field(None, min_length=1, max_length=100, description="Модель автомобиля")
-    year_min: Optional[int] = Field(None, ge=1886, le=2026, description="Минимальный год выпуска")
-    year_max: Optional[int] = Field(None, ge=1886, le=2026, description="Максимальный год выпуска")
-    color: Optional[str] = Field(None, min_length=3, max_length=30, description="Цвет автомобиля")
-    status: Optional[Literal["в наличии", "не в наличии", "зарезервировано"]] = Field(None, description="Статус автомобиля")
-    price_min: Optional[int] = Field(None, gt=0, description="Минимальная цена в рублях")
-    price_max: Optional[int] = Field(None, gt=0, description="Максимальная цена в рублях")
+#class CarFilter(BaseModel):
