@@ -91,3 +91,24 @@ class UserOutWithoutSensitive(UserOut):
     
     class Config:
         from_attributes = True
+
+
+class SaleFilter(BaseModel):
+    """Схема для фильтрации продаж (query parameters)"""
+    car_id: Optional[int] = Field(None, gt=0, description="ID автомобиля")
+    customer_id: Optional[int] = Field(None, gt=0, description="ID покупателя")
+    user_id: Optional[int] = Field(None, gt=0, description="ID сотрудника (продавца)")
+    sale_date_from: Optional[date] = Field(None, description="Дата продажи от")
+    sale_date_to: Optional[date] = Field(None, description="Дата продажи до")
+    payment_method: Optional[Literal["cash", "card", "credit", "installment"]] = Field(
+        None, description="Способ оплаты"
+    )
+    status: Optional[Literal["pending", "completed", "cancelled", "refunded"]] = Field(
+        None, description="Статус продажи"
+    )
+    sale_price_min: Optional[Decimal] = Field(
+        None, gt=0, max_digits=12, decimal_places=2, description="Минимальная цена продажи"
+    )
+    sale_price_max: Optional[Decimal] = Field(
+        None, gt=0, max_digits=12, decimal_places=2, description="Максимальная цена продажи"
+    )

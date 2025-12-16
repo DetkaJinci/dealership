@@ -36,3 +36,16 @@ class CarOut(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+
+class CustomerFilter(BaseModel):
+    """Схема для фильтрации покупателей (query parameters)"""
+    name: Optional[str] = Field(None, min_length=3, max_length=25, description="Имя покупателя")
+    surname: Optional[str] = Field(None, min_length=3, max_length=25, description="Фамилия покупателя")
+    lastname: Optional[str] = Field(None, min_length=6, max_length=25, description="Отчество покупателя")
+    birthday_from: Optional[date] = Field(None, description="Дата рождения от")
+    birthday_to: Optional[date] = Field(None, description="Дата рождения до")
+    email: Optional[EmailStr] = Field(None, description="Почта покупателя")
+    phone: Optional[str] = Field(None, min_length=11, max_length=12, description="Номер телефона")
+    passport: Optional[str] = Field(None, min_length=10, max_length=10, des
