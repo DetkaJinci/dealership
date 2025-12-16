@@ -56,8 +56,20 @@ class SaleUpdate(BaseModel):
 
 class SaleOut(SaleBase):
     id: int = Field(description="ID продажи")
-    created_at: datetime = Field(description="Дата создания записи")
-    updated_at: Optional[datetime] = Field(None, description="Дата обновления записи")
     
     class Config:
         from_attributes = True
+
+class SaleFilter(BaseModel):
+    """Схема для фильтрации продаж (query parameters)"""
+    car_id: Optional[int] = Field(None, gt=0, description="ID автомобиля")
+    customer_id: Optional[int] = Field(None, gt=0, description="ID покупателя")
+    user_id: Optional[int] = Field(None, gt=0, description="ID сотрудника (продавца)")
+    sale_date_from: Optional[date] = Field(None, description="Дата продажи от")
+    sale_date_to: Optional[date] = Field(None, description="Дата продажи до")
+    payment_method: Optional[Literal["cash", "card", "credit", "installment"]] = Field(
+        None, description="Способ оплаты"
+    )
+    status: Optional[Literal["pending", "completed", "cancelled", "refunded"]] = Field(
+        None, description="Статус продажи"
+    )
