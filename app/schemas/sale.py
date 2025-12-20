@@ -65,8 +65,7 @@ class SaleFilter(BaseModel):
     car_id: Optional[int] = Field(None, gt=0, description="ID автомобиля")
     customer_id: Optional[int] = Field(None, gt=0, description="ID покупателя")
     user_id: Optional[int] = Field(None, gt=0, description="ID сотрудника (продавца)")
-    sale_date_from: Optional[date] = Field(None, description="Дата продажи от")
-    sale_date_to: Optional[date] = Field(None, description="Дата продажи до")
+    sale_date: Optional[date] = Field(None, description="Дата продажи")
     payment_method: Optional[Literal["cash", "card", "credit", "installment"]] = Field(
         None, description="Способ оплаты"
     )

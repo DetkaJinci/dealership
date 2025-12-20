@@ -73,17 +73,9 @@ class UserUpdate(BaseModel):
     
 
 
-class UserOut(BaseModel):
+class UserOut(UserBase):
     id: int = Field(description="ID пользователя")
-    username: str = Field(description="Логин пользователя", example="ivanov")
-    birthday: date = Field(description="Дата рождения пользователя", example="1990-05-15")
-    email: str = Field(description="Email пользователя", example="ivanov@example.com")
-    role: str = Field(description="Роль пользователя", example="seller")
-    created_at: datetime = Field(description="Дата создания пользователя")
-    updated_at: Optional[datetime] = Field(None, description="Дата обновления данных")
-    
-    class Config:
-        from_attributes = True
+
 
 
 class UserOutWithoutSensitive(UserOut):
@@ -97,8 +89,7 @@ class UserOutWithoutSensitive(UserOut):
 class UserFilter(BaseModel):
     """Схема для фильтрации пользователей (query parameters)"""
     username: Optional[str] = Field(None, min_length=3, max_length=50, description="Логин пользователя")
-    birthday_from: Optional[date] = Field(None, description="Дата рождения от")
-    birthday_to: Optional[date] = Field(None, description="Дата рождения до")
+    birthday: Optional[date] = Field(None, description="Дата рождения")
     email: Optional[EmailStr] = Field(None, description="Email пользователя")
     role: Optional[Literal["admin", "manager", "seller", "viewer"]] = Field(
         None, description="Роль пользователя в системе"
