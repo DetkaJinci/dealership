@@ -20,3 +20,4 @@ class SaleDAO(BaseDAO):
 
 class UserDAO(BaseDAO):
     model = User
+
