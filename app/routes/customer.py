@@ -6,7 +6,7 @@ from app.schemas.customer import CustomerOut, CustomerFilter
 
 router = APIRouter()  
 
-@router.get("", response_model=List[CustomerOut])
+@router.get("", response_model=List[CustomerOut], status_code=200, description="Возвращает всех покупателей, обрабатывая все query параметры", summary="Получить всех покупателей")
 async def get_customers(
     customer_filter: Annotated[CustomerFilter, Query()]
 ):

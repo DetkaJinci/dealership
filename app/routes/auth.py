@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.user import UserCreate, UserOut
 from app.DAO import UserDAO 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter()
 
-@router.post("/register", response_model=UserOut, status_code=201)
+@router.post("/register", response_model=UserOut, status_code=201, description="Регистрирует нового пользователя в систему", summary="Зарегистрировать пользователя")
 async def register_user(user_data: UserCreate):
     # Проверка на существующий email
     if await UserDAO.find_one_or_none(email=user_data.email):
