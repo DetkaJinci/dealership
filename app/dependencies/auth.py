@@ -9,12 +9,19 @@ from passlib.context import CryptContext
 from app.SAmodels.user import User
 from app.DAO import UserDAO
 from config import settings
+import argon2
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["argon2"],      
+    deprecated="auto",
+    argon2__memory_cost=102400,  
+    argon2__time_cost=2,
+    argon2__parallelism=8,
+)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
