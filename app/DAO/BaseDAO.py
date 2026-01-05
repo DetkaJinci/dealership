@@ -1,19 +1,22 @@
-# app/DAO/base_dao.py
 from sqlite3 import IntegrityError
 from typing import Any, Optional, Sequence
-from fastapi import HTTPException, status
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError as SAIntegrityError
-from app.SAmodels.database import async_session_maker
 
-# Прямой хэшер Argon2 — безопасный, современный, без лимита длины пароля
+from app.SAmodels.database import async_session_maker
+from app.exceptions import (  # <-- Импортируем твои кастомные исключения
+    UserAlreadyExistsException,
+    ObjectNotFoundException,
+    IntegrityViolationException,
+)
+
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, InvalidHashError
 
 ph = PasswordHasher(
-    memory_cost=102400,   
-    time_cost=3,          
-    parallelism=2,        
+    memory_cost=102400,
+    time_cost=3,
+    parallelism=2,
 )
 
 
@@ -21,22 +24,17 @@ class BaseDAO:
     """
     Базовый DAO для всех моделей.
     Поддерживает полный CRUD.
-    Хэширование паролей — через Argon2 (без passlib и bcrypt).
+    Хэширование паролей — через Argon2.
+    Использует кастомные исключения для лучшей читаемости и унификации ошибок.
     """
     model = None
 
     @classmethod
     def get_password_hash(cls, password: str) -> str:
-        """
-        Хэширует пароль с помощью Argon2.
-        """
         return ph.hash(password)
 
     @classmethod
     def verify_password(cls, plain_password: str, hashed_password: str) -> bool:
-        """
-        Проверяет пароль против хэша.
-        """
         try:
             ph.verify(hashed_password, plain_password)
             return True
@@ -63,7 +61,8 @@ class BaseDAO:
     async def add(cls, **values) -> Any:
         """
         Создаёт новую запись.
-        Если передан 'password' — автоматически хэширует в 'hashed_password'.
+        Автоматически хэширует пароль, если передан.
+        При дубликате уникального поля (email/username) — кидает UserAlreadyExistsException.
         """
         if "password" in values:
             values["hashed_password"] = cls.get_password_hash(values.pop("password"))
@@ -74,21 +73,17 @@ class BaseDAO:
                 result = await session.execute(query)
                 await session.commit()
                 return result.scalar_one()
-            except (IntegrityError, SAIntegrityError) as e:
+            except (IntegrityError, SAIntegrityError):
                 await session.rollback()
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Нарушение целостности данных (например, дубликат email/username)"
-                ) from e
+                raise UserAlreadyExistsException()
 
     @classmethod
     async def update(cls, obj: Any, **values) -> Any:
         """
-        Обновляет объект.
-        Если передан 'password' — хэширует его.
+        Обновляет существующий объект.
         """
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Объект не найден")
+            raise ObjectNotFoundException(cls.model.__name__)
 
         if "password" in values:
             values["hashed_password"] = cls.get_password_hash(values.pop("password"))
@@ -97,8 +92,7 @@ class BaseDAO:
             if hasattr(obj, key):
                 setattr(obj, key, value)
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                raise IntegrityViolationException(
                     detail=f"Поле '{key}' не существует в модели {cls.model.__name__}"
                 )
 
@@ -108,12 +102,11 @@ class BaseDAO:
                 await session.commit()
                 await session.refresh(obj)
                 return obj
-            except (IntegrityError, SAIntegrityError) as e:
+            except (IntegrityError, SAIntegrityError):
                 await session.rollback()
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                raise IntegrityViolationException(
                     detail="Нарушение целостности данных (например, дубликат уникального поля)"
-                ) from e
+                )
 
     @classmethod
     async def delete(cls, obj: Any) -> None:
@@ -121,16 +114,15 @@ class BaseDAO:
         Удаляет объект.
         """
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Объект не найден")
+            raise ObjectNotFoundException(cls.model.__name__)
 
         async with async_session_maker() as session:
             session.add(obj)
             await session.delete(obj)
             try:
                 await session.commit()
-            except (IntegrityError, SAIntegrityError) as e:
+            except (IntegrityError, SAIntegrityError):
                 await session.rollback()
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                raise IntegrityViolationException(
                     detail="Нельзя удалить: объект связан с другими записями"
-                ) from e
+                )
