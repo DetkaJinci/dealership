@@ -3,10 +3,13 @@ from fastapi import APIRouter, HTTPException, Path, Query
 from typing import Annotated, List
 from app.DAO import CarDAO
 from app.schemas.car import CarOut, CarFilter, CarCreate, CarUpdate
+from fastapi_cache.decorator import cache
+
 
 router = APIRouter()  
 
 @router.get("", response_model=List[CarOut], status_code=200, summary="Получить все автомобили", description="Возвращает все автомобили, обрабатывая все query параметры")
+@cache(expire=60)
 async def get_cars(
     car_filter: Annotated[CarFilter, Query()]
 ):

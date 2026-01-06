@@ -2,10 +2,12 @@ from fastapi import APIRouter, HTTPException, Path, Query
 from typing import Annotated, List
 from app.DAO import CustomerDAO
 from app.schemas.customer import CustomerOut, CustomerFilter, CustomerCreate, CustomerUpdate
+from fastapi_cache.decorator import cache
 
 router = APIRouter()  
 
 @router.get("", response_model=List[CustomerOut], status_code=200, description="Возвращает всех покупателей, обрабатывая все query параметры", summary="Получить всех покупателей")
+@cache(expire=60)
 async def get_customers(
     customer_filter: Annotated[CustomerFilter, Query()]
 ):
